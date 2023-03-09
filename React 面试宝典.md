@@ -312,8 +312,27 @@ function withLoading(WrappedComponent) {
     }
 }
 ```
+# 06 setState 是同步更新还是异步更新？
 
-01:00:17 06 etState 是同步更新还是异步更新？
+合成事件： 事件委托
+```js
+class Test extends Component {
+    state = {count: 0}
+
+    componentDidMount() {
+        this.setState({
+            count: 1
+        }, () => {
+            console.log(this.state.count)
+        })
+        console.log(this.state.count)
+    }
+    render() {
+        
+    }
+}
+```
+
 01:08:09 07 如何面向组件跨层级通信？
 01:16:47 08 列举一种你了解的 React 状态管理框架
 01:28:20 09 Virtual DOM 的工作原理是什么？
