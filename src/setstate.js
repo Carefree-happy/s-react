@@ -1,5 +1,6 @@
 import { Component } from "react"
 // setState只在合成事件和生命周期钩子函数中是异步的，而在setTimeout或者原生dom事件中都是同步的
+// https://github.com/facebook/react/issues/11527#issuecomment-360199710%EF%BC%9B
 class Test1 extends Component {
     state = {
         count: 0
