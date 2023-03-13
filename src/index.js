@@ -1,5 +1,5 @@
-import React from "react"
-import ReactDOM from "react-dom"
-import LifeCircleContainer from "./react15"
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
 
-ReactDOM.render(<LifeCircleContainer />, document.getElementById("root"))
+ReactDOM.render(<App />, document.getElementById("root"));
