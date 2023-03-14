@@ -1,166 +1,36 @@
-import { Suspense, useState } from "react";
+import { StrictMode, useState } from "react";
 
 export default function App() {
-    const [query, setQuery] = useState("");
+    const [show, setShow] = useState(true);
+    const [value, setValue] = useState("value");
     return (
-        <>
-            <label>
-                Search albums:
-                <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                />
-            </label>
-            <Suspense fallback={<h2>Loading...</h2>}>
-                <SearchResults query={query} />
-            </Suspense>
+        <>  
+            <button onClick={() => setShow(!show)}>button</button>
+            <input value={value} onChange={(e) => setValue(e.target.value)}></input>
+            {show && <Name value={value} />}
         </>
     );
 }
 
-function SearchResults({ query }) {
-    if (query === "") {
-        return null;
-    }
-    const albums = use(fetchData(`/search?q=${query}`));
-    if (albums.length === 0) {
-        return (
-            <p>
-                No matches for <i>"{query}"</i>
-            </p>
-        );
-    }
-    return (
-        <ul>
-            {albums.map((album) => (
-                <li key={album.id}>
-                    {album.title} ({album.year})
-                </li>
-            ))}
-        </ul>
-    );
+function Name({ value }) {
+    const [dom, setDOM] = useState(console.log("检测"));
+    return <div ref={setDOM}>{value}</div>;
 }
 
-function use(promise) {
-    if (promise.status === "fulfilled") {
-        return promise.value;
-    } else if (promise.status === "rejected") {
-        throw promise.reason;
-    } else if (promise.status === "pending") {
-        throw promise;
-    } else {
-        promise.status = "pending";
-        promise.then(
-            (result) => {
-                promise.status = "fulfilled";
-                promise.value = result;
-            },
-            (reason) => {
-                promise.status = "rejected";
-                promise.reason = reason;
-            }
-        );
-        throw promise;
-    }
-}
+/**
+ ref 的形式有两种：
+ 1. 形如 {current: T} 的数据结构
+ 2. 回调函数形式，会在 ref 更新、销毁时触发
 
-let cache = new Map();
+ setDOM 是 useState()的dispatch方法
+ 1. 直接传递更新后的值，比如setDOM(x)
+ 2. 传递更新状态的方法，比如setDOM(oldDOM => return{})
 
-function fetchData(url) {
-    if (!cache.has(url)) {
-        cache.set(url, getData(url));
-    }
-    return cache.get(url);
-}
+ 在例子中，虽然反常，但ref的第二种形式和dispatch的第二种形式确实是契合的。
+ 也就是说，在例子中传递给 ref 的 setDOM 方法，
+ 会在[div对应DOM]更新、销毁时执行，例子中的setDOM是useState的dispatch方法
+ dom中的状态保存的就是[div对应DOM]的最新值
 
-async function getData(url) {
-    if (url.startsWith("/search?q=")) {
-        return await getSearchResults(url.slice("/search?q=".length));
-    } else {
-        throw Error("Not implemented");
-    }
-}
-
-async function getSearchResults(query) {
-    // Add a fake delay to make waiting noticeable.
-    await new Promise((resolve) => {
-        setTimeout(resolve, 500);
-    });
-
-    const allAlbums = [
-        {
-            id: 13,
-            title: "Let It Be",
-            year: 1970,
-        },
-        {
-            id: 12,
-            title: "Abbey Road",
-            year: 1969,
-        },
-        {
-            id: 11,
-            title: "Yellow Submarine",
-            year: 1969,
-        },
-        {
-            id: 10,
-            title: "The Beatles",
-            year: 1968,
-        },
-        {
-            id: 9,
-            title: "Magical Mystery Tour",
-            year: 1967,
-        },
-        {
-            id: 8,
-            title: "Sgt. Pepper's Lonely Hearts Club Band",
-            year: 1967,
-        },
-        {
-            id: 7,
-            title: "Revolver",
-            year: 1966,
-        },
-        {
-            id: 6,
-            title: "Rubber Soul",
-            year: 1965,
-        },
-        {
-            id: 5,
-            title: "Help!",
-            year: 1965,
-        },
-        {
-            id: 4,
-            title: "Beatles For Sale",
-            year: 1964,
-        },
-        {
-            id: 3,
-            title: "A Hard Day's Night",
-            year: 1964,
-        },
-        {
-            id: 2,
-            title: "With The Beatles",
-            year: 1963,
-        },
-        {
-            id: 1,
-            title: "Please Please Me",
-            year: 1963,
-        },
-    ];
-
-    const lowerQuery = query.trim().toLowerCase();
-    return allAlbums.filter((album) => {
-        const lowerTitle = album.title.toLowerCase();
-        return (
-            lowerTitle.startsWith(lowerQuery) ||
-            lowerTitle.indexOf(" " + lowerQuery) !== -1
-        );
-    });
-}
+ 更新节点的值时，不会执行函数；销毁时不执行，新建时执行；
+ 去掉尖头函数后，会执行两次
+*/
