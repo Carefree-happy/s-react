@@ -1,36 +1,28 @@
-import { Profiler, StrictMode } from "react";
+import { StrictMode, useState } from "react";
+
+let initialStories = [
+    { id: 0, label: "Ankit's Story" },
+    { id: 1, label: "Taylor's Story" },
+];
 
 export default function App() {
-    const articles = [
-        {
-            title: "An update",
-            body: "It's been a while since I posted...",
-        },
-        {
-            title: "My new blog",
-            body: "I am starting a new blog!",
-        },
-    ];
-    function onRender(e) {
-        console.log(e)
-    }
+    let [stories, setStories] = useState(initialStories);
 
-    return articles.map((article, i) => (
-        <StrictMode id={`${i}multiple`} key={i} onRender={onRender}>
-            <PostTitle title={article.title} />
-            <PostBody body={article.body} />
-        </StrictMode>
-    ));
-}
-
-function PostTitle({ title }) {
-    return <h1>{title}</h1>;
-}
-
-function PostBody({ body }) {
     return (
-        <article>
-            <p>{body}</p>
-        </article>
+        <StrictMode style={{ width: "100%", height: "100%", textAlign: "center" }}>
+            <StoryTray stories={stories} />
+        </StrictMode>
+    );
+}
+
+function StoryTray({ stories }) {
+    const items = stories;
+    items.push({ id: "create", label: "Create Story" });
+    return (
+        <ul>
+            {items.map((story) => (
+                <li key={story.id}>{story.label}</li>
+            ))}
+        </ul>
     );
 }
