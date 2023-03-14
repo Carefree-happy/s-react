@@ -16,7 +16,7 @@ export default function App() {
     }
 
     return articles.map((article, i) => (
-        <Profiler id={`${i}assss`} key={i} onRender={onRender}>
+        <Profiler id={`${i}multiple`} key={i} onRender={onRender}>
             <PostTitle title={article.title} />
             <PostBody body={article.body} />
         </Profiler>
