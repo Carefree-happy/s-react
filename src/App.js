@@ -1,60 +1,35 @@
 import { Suspense, useState } from "react";
-import { fetchData } from "./data.js";
 
 export default function App() {
-    const [show, setShow] = useState(false);
-    if (show) {
-        return (
-            <ArtistPage
-                artist={{
-                    id: "the-beatles",
-                    name: "The Beatles",
-                }}
-            />
-        );
-    } else {
-        return (
-            <button onClick={() => setShow(true)}>
-                Open The Beatles artist page
-            </button>
-        );
-    }
-}
-
-function ArtistPage({ artist }) {
+    const [query, setQuery] = useState("");
     return (
         <>
-            <h1>{artist.name}</h1>
-            <Suspense fallback={<Loading />}>
-                <Biography artistId={artist.id} />
-                <Suspense fallback={<AlbumsGlimmer />}>
-                    <Panel>
-                        <Albums artistId={artist.id} />
-                    </Panel>
-                </Suspense>
+            <label>
+                Search albums:
+                <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+            </label>
+            <Suspense fallback={<h2>Loading...</h2>}>
+                <SearchResults query={query} />
             </Suspense>
         </>
     );
 }
 
-function AlbumsGlimmer() {
-    return (
-        <div>
-            HI
-        </div>
-    );
-}
-
-function Panel({ children }) {
-    return <section className="panel">{children}</section>;
-}
-
-function Loading() {
-    return <h2>🌀 Loading...</h2>;
-}
-
-function Albums({ artistId }) {
-    const albums = use(fetchData(`/${artistId}/albums`));
+function SearchResults({ query }) {
+    if (query === "") {
+        return null;
+    }
+    const albums = use(fetchData(`/search?q=${query}`));
+    if (albums.length === 0) {
+        return (
+            <p>
+                No matches for <i>"{query}"</i>
+            </p>
+        );
+    }
     return (
         <ul>
             {albums.map((album) => (
@@ -89,12 +64,103 @@ function use(promise) {
     }
 }
 
-// Biography
-function Biography({ artistId }) {
-    const bio = use(fetchData(`/${artistId}/bio`));
-    return (
-        <section>
-            <p className="bio">{bio}</p>
-        </section>
-    );
+let cache = new Map();
+
+function fetchData(url) {
+    if (!cache.has(url)) {
+        cache.set(url, getData(url));
+    }
+    return cache.get(url);
+}
+
+async function getData(url) {
+    if (url.startsWith("/search?q=")) {
+        return await getSearchResults(url.slice("/search?q=".length));
+    } else {
+        throw Error("Not implemented");
+    }
+}
+
+async function getSearchResults(query) {
+    // Add a fake delay to make waiting noticeable.
+    await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+    });
+
+    const allAlbums = [
+        {
+            id: 13,
+            title: "Let It Be",
+            year: 1970,
+        },
+        {
+            id: 12,
+            title: "Abbey Road",
+            year: 1969,
+        },
+        {
+            id: 11,
+            title: "Yellow Submarine",
+            year: 1969,
+        },
+        {
+            id: 10,
+            title: "The Beatles",
+            year: 1968,
+        },
+        {
+            id: 9,
+            title: "Magical Mystery Tour",
+            year: 1967,
+        },
+        {
+            id: 8,
+            title: "Sgt. Pepper's Lonely Hearts Club Band",
+            year: 1967,
+        },
+        {
+            id: 7,
+            title: "Revolver",
+            year: 1966,
+        },
+        {
+            id: 6,
+            title: "Rubber Soul",
+            year: 1965,
+        },
+        {
+            id: 5,
+            title: "Help!",
+            year: 1965,
+        },
+        {
+            id: 4,
+            title: "Beatles For Sale",
+            year: 1964,
+        },
+        {
+            id: 3,
+            title: "A Hard Day's Night",
+            year: 1964,
+        },
+        {
+            id: 2,
+            title: "With The Beatles",
+            year: 1963,
+        },
+        {
+            id: 1,
+            title: "Please Please Me",
+            year: 1963,
+        },
+    ];
+
+    const lowerQuery = query.trim().toLowerCase();
+    return allAlbums.filter((album) => {
+        const lowerTitle = album.title.toLowerCase();
+        return (
+            lowerTitle.startsWith(lowerQuery) ||
+            lowerTitle.indexOf(" " + lowerQuery) !== -1
+        );
+    });
 }
