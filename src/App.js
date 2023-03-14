@@ -26,12 +26,22 @@ function ArtistPage({ artist }) {
         <>
             <h1>{artist.name}</h1>
             <Suspense fallback={<Loading />}>
-                <Biography artistId={artist.id}/>
-                <Panel>
-                    <Albums artistId={artist.id} />
-                </Panel>
+                <Biography artistId={artist.id} />
+                <Suspense fallback={<AlbumsGlimmer />}>
+                    <Panel>
+                        <Albums artistId={artist.id} />
+                    </Panel>
+                </Suspense>
             </Suspense>
         </>
+    );
+}
+
+function AlbumsGlimmer() {
+    return (
+        <div>
+            HI
+        </div>
     );
 }
 
