@@ -15,7 +15,9 @@ export default function App() {
     )
 
     return <Fragment>
+        第一天
         <Post article={article}/>
+        第二天
         <Post article={article2}/>
     </Fragment>
 }
