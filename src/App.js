@@ -1,4 +1,4 @@
-import { Profiler } from "react";
+import { Profiler, StrictMode } from "react";
 
 export default function App() {
     const articles = [
@@ -16,10 +16,10 @@ export default function App() {
     }
 
     return articles.map((article, i) => (
-        <Profiler id={`${i}multiple`} key={i} onRender={onRender}>
+        <StrictMode id={`${i}multiple`} key={i} onRender={onRender}>
             <PostTitle title={article.title} />
             <PostBody body={article.body} />
-        </Profiler>
+        </StrictMode>
     ));
 }
 
