@@ -1,5 +1,5 @@
 import { Suspense, useState } from "react";
-import { fetchData } from './data.js';
+import { fetchData } from "./data.js";
 
 export default function App() {
     const [show, setShow] = useState(false);
@@ -26,10 +26,17 @@ function ArtistPage({ artist }) {
         <>
             <h1>{artist.name}</h1>
             <Suspense fallback={<Loading />}>
-                <Albums artistId={artist.id} />
+                <Biography artistId={artist.id}/>
+                <Panel>
+                    <Albums artistId={artist.id} />
+                </Panel>
             </Suspense>
         </>
     );
+}
+
+function Panel({ children }) {
+    return <section className="panel">{children}</section>;
 }
 
 function Loading() {
@@ -70,4 +77,14 @@ function use(promise) {
         );
         throw promise;
     }
+}
+
+// Biography
+function Biography({ artistId }) {
+    const bio = use(fetchData(`/${artistId}/bio`));
+    return (
+        <section>
+            <p className="bio">{bio}</p>
+        </section>
+    );
 }
