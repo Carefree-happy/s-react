@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Profiler } from "react";
 
 export default function App() {
     const articles = [
@@ -11,12 +11,15 @@ export default function App() {
             body: "I am starting a new blog!",
         },
     ];
+    function onRender(e) {
+        console.log(e)
+    }
 
     return articles.map((article, i) => (
-        <Fragment key={i}>
+        <Profiler id={`${i}assss`} key={i} onRender={onRender}>
             <PostTitle title={article.title} />
             <PostBody body={article.body} />
-        </Fragment>
+        </Profiler>
     ));
 }
 
