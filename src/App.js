@@ -1,38 +1,73 @@
-import { StrictMode, useEffect } from "react";
-
-const serverUrl = "https://localhost:1234";
-const roomId = "general";
-let connections = 0;
+import { Suspense, useState } from "react";
+import { fetchData } from './data.js';
 
 export default function App() {
-    return <StrictMode><Post/></StrictMode>
+    const [show, setShow] = useState(false);
+    if (show) {
+        return (
+            <ArtistPage
+                artist={{
+                    id: "the-beatles",
+                    name: "The Beatles",
+                }}
+            />
+        );
+    } else {
+        return (
+            <button onClick={() => setShow(true)}>
+                Open The Beatles artist page
+            </button>
+        );
+    }
 }
 
-function Post() {
-    useEffect(() => {
-        const connection = createConnection(serverUrl, roomId);
-        connection.connect();
-        return () => connection.disconnect();
-    }, []);
-    return <h1>Welcome to the {roomId} room!</h1>;
+function ArtistPage({ artist }) {
+    return (
+        <>
+            <h1>{artist.name}</h1>
+            <Suspense fallback={<Loading />}>
+                <Albums artistId={artist.id} />
+            </Suspense>
+        </>
+    );
 }
 
-function createConnection(serverUrl, roomId) {
-    // A real implementation would actually connect to the server
-    return {
-        connect() {
-            console.log(
-                '✅ Connecting to "' + roomId + '" room at ' + serverUrl + "..."
-            );
-            connections++;
-            console.log("Active connections: " + connections);
-        },
-        disconnect() {
-            console.log(
-                '❌ Disconnected from "' + roomId + '" room at ' + serverUrl
-            );
-            connections--;
-            console.log("Active connections: " + connections);
-        },
-    };
+function Loading() {
+    return <h2>🌀 Loading...</h2>;
+}
+
+function Albums({ artistId }) {
+    const albums = use(fetchData(`/${artistId}/albums`));
+    return (
+        <ul>
+            {albums.map((album) => (
+                <li key={album.id}>
+                    {album.title} ({album.year})
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+function use(promise) {
+    if (promise.status === "fulfilled") {
+        return promise.value;
+    } else if (promise.status === "rejected") {
+        throw promise.reason;
+    } else if (promise.status === "pending") {
+        throw promise;
+    } else {
+        promise.status = "pending";
+        promise.then(
+            (result) => {
+                promise.status = "fulfilled";
+                promise.value = result;
+            },
+            (reason) => {
+                promise.status = "rejected";
+                promise.reason = reason;
+            }
+        );
+        throw promise;
+    }
 }
