@@ -1,36 +1,52 @@
-import { StrictMode, useState } from "react";
+import * as React from "react";
+import {
+    useState,
+    forwardRef,
+    useEffect,
+    createContext,
+    useContext,
+    useMemo,
+} from "react";
+import { render } from "react-dom";
+
+const Child = forwardRef((props, ref) => {
+    return <div ref={ref}>This is a regular child component</div>;
+});
+
+const refContext = createContext();
+const ContextUsingChild = (props) => {
+    const { setValue } = useContext(refContext);
+    return <div ref={setValue}>This child uses context</div>;
+};
 
 export default function App() {
-    const [show, setShow] = useState(true);
-    const [value, setValue] = useState("value");
+    const [child1, setChild1] = useState(null);
+    const [child2, setChild2] = useState(null);
+    const [child3, setChild3] = useState(null);
+
+    useEffect(() => {
+        if (child1 && child2) {
+            console.log(`Child 1 text: ${child1.innerText}`);
+            console.log(`Child 2 text: ${child2.innerText}`);
+            console.log(`Child 3 text: ${child3.innerText}`);
+        } else {
+            console.log(`Child 1: ${child1 ? "" : "not "}mounted`);
+            console.log(`Child 2: ${child2 ? "" : "not "}mounted`);
+            console.log(`Child 3: ${child3 ? "" : "not "}mounted`);
+            console.log(`In a real app, would run a cleanup function here`);
+        }
+    }, [child1, child2, child3]);
+
+    const value = useMemo(() => ({ setValue: setChild3 }), []);
+
     return (
-        <>  
-            <button onClick={() => setShow(!show)}>button</button>
-            <input value={value} onChange={(e) => setValue(e.target.value)}></input>
-            {show && <Name value={value} />}
-        </>
+        <refContext.Provider value={value}>
+            <div className="App">
+                This is text in the parent component
+                <Child ref={setChild1} />
+                <Child ref={setChild2} />
+                <ContextUsingChild />
+            </div>
+        </refContext.Provider>
     );
-}
-
-function Name({ value }) {
-    const [dom, setDOM] = useState(console.log("检测"));
-    return <div ref={setDOM}>{value}</div>;
-}
-
-/**
- ref 的形式有两种：
- 1. 形如 {current: T} 的数据结构
- 2. 回调函数形式，会在 ref 更新、销毁时触发
-
- setDOM 是 useState()的dispatch方法
- 1. 直接传递更新后的值，比如setDOM(x)
- 2. 传递更新状态的方法，比如setDOM(oldDOM => return{})
-
- 在例子中，虽然反常，但ref的第二种形式和dispatch的第二种形式确实是契合的。
- 也就是说，在例子中传递给 ref 的 setDOM 方法，
- 会在[div对应DOM]更新、销毁时执行，例子中的setDOM是useState的dispatch方法
- dom中的状态保存的就是[div对应DOM]的最新值
-
- 更新节点的值时，不会执行函数；销毁时不执行，新建时执行；
- 去掉尖头函数后，会执行两次
-*/
+};
