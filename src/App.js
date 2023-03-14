@@ -1,39 +1,33 @@
 import { Fragment } from "react";
 
 export default function App() {
-    const article = (
-        <>
-            <PostTitle title="An update"></PostTitle>
-            <PostBody body="It's been a while since I posted..."></PostBody>
-        </>
-    )
-    const article2 = (
-        <>
-            <PostTitle title="My new blog"></PostTitle>
-            <PostBody body="I am starting a new blog!"></PostBody>
-        </>
-    )
+    const articles = [
+        {
+            title: "An update",
+            body: "It's been a while since I posted...",
+        },
+        {
+            title: "My new blog",
+            body: "I am starting a new blog!",
+        },
+    ];
 
-    return <Fragment>
-        第一天
-        <Post article={article}/>
-        第二天
-        <Post article={article2}/>
-    </Fragment>
-}
-
-function Post({ article }) {
-    return <>
-       {article.props.children.map(e => {
-            return e
-       })}
-    </>
+    return articles.map((article, i) => (
+        <Fragment key={i}>
+            <PostTitle title={article.title} />
+            <PostBody body={article.body} />
+        </Fragment>
+    ));
 }
 
 function PostTitle({ title }) {
-    return <h1>{title}</h1>
+    return <h1>{title}</h1>;
 }
 
 function PostBody({ body }) {
-    return <article><p>{body}</p></article>
+    return (
+        <article>
+            <p>{body}</p>
+        </article>
+    );
 }
