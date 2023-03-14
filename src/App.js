@@ -1,28 +1,38 @@
-import { StrictMode, useState } from "react";
+import { StrictMode, useEffect } from "react";
 
-let initialStories = [
-    { id: 0, label: "Ankit's Story" },
-    { id: 1, label: "Taylor's Story" },
-];
+const serverUrl = "https://localhost:1234";
+const roomId = "general";
+let connections = 0;
 
 export default function App() {
-    let [stories, setStories] = useState(initialStories);
-
-    return (
-        <StrictMode style={{ width: "100%", height: "100%", textAlign: "center" }}>
-            <StoryTray stories={stories} />
-        </StrictMode>
-    );
+    return <StrictMode><Post/></StrictMode>
 }
 
-function StoryTray({ stories }) {
-    const items = stories;
-    items.push({ id: "create", label: "Create Story" });
-    return (
-        <ul>
-            {items.map((story) => (
-                <li key={story.id}>{story.label}</li>
-            ))}
-        </ul>
-    );
+function Post() {
+    useEffect(() => {
+        const connection = createConnection(serverUrl, roomId);
+        connection.connect();
+        return () => connection.disconnect();
+    }, []);
+    return <h1>Welcome to the {roomId} room!</h1>;
+}
+
+function createConnection(serverUrl, roomId) {
+    // A real implementation would actually connect to the server
+    return {
+        connect() {
+            console.log(
+                '✅ Connecting to "' + roomId + '" room at ' + serverUrl + "..."
+            );
+            connections++;
+            console.log("Active connections: " + connections);
+        },
+        disconnect() {
+            console.log(
+                '❌ Disconnected from "' + roomId + '" room at ' + serverUrl
+            );
+            connections--;
+            console.log("Active connections: " + connections);
+        },
+    };
 }
