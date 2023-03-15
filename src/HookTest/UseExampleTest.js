@@ -23,26 +23,17 @@ function LongSection() {
 
 function Box() {
     const ref = useRef(null);
+    const isIntersecting = useIntersectionObserver(ref);
 
     useEffect(() => {
-        const div = ref.current;
-        const observer = new IntersectionObserver((entries) => {
-            const entry = entries[0];
-            if (entry.isIntersecting) {
-                document.body.style.backgroundColor = "black";
-                document.body.style.color = "white";
-            } else {
-                document.body.style.backgroundColor = "white";
-                document.body.style.color = "black";
-            }
-        });
-        observer.observe(div, {
-            threshold: 1.0,
-        });
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
+        if (isIntersecting) {
+            document.body.style.backgroundColor = "black";
+            document.body.style.color = "white";
+        } else {
+            document.body.style.backgroundColor = "white";
+            document.body.style.color = "black";
+        }
+    }, [isIntersecting]);
 
     return (
         <div
@@ -56,4 +47,24 @@ function Box() {
             }}
         />
     );
+}
+
+function useIntersectionObserver(ref) {
+    const [isIntersecting, setIsIntersecting] = useState(false);
+
+    useEffect(() => {
+        const div = ref.current;
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            setIsIntersecting(entry.isIntersecting);
+        });
+        observer.observe(div, {
+            threshold: 1.0,
+        });
+        return () => {
+            observer.disconnect();
+        };
+    }, [ref]);
+
+    return isIntersecting;
 }
