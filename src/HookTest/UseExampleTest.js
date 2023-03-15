@@ -5,76 +5,28 @@ export function UseExampleTest() {
     return (
         <>
             <button onClick={() => setShow(!show)}>
-                {show ? "Remove" : "Show"}
+                {show ? "close" : "open"} dialog
             </button>
-            <hr />
-            {show && <Welcome />}
+            <ModalDialog isOpen={show}>
+                Hello, Here!
+                <br/>
+                <button onClick={() => {setShow(false)}}>close dialog</button>
+            </ModalDialog>
         </>
     );
 }
 
-function Welcome() {
-    const ref = useRef(null);
+function ModalDialog({ isOpen, children }) {
+    const ref = useRef();
 
     useEffect(() => {
-        const animation = new FadeInAnimation(ref.current);
-        animation.start(5000);
+        if(!isOpen) return;
+        const dialog = ref.current;
+        dialog.showModal();
         return () => {
-            animation.stop();
+            dialog.close();
         };
-    }, []);
+    }, [isOpen])
 
-    return (
-        <h1
-            ref={ref}
-            style={{
-                opacity: 0,
-                color: "white",
-                padding: 50,
-                textAlign: "center",
-                fontSize: 50,
-                backgroundImage:
-                    "radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)",
-            }}
-        >
-            Welcome
-        </h1>
-    );
-}
-
-
-class FadeInAnimation {
-    constructor(node) {
-        this.node = node;
-    }
-    start(duration) {
-        this.duration = duration;
-        if (this.duration === 0) {
-            // Jump to end immediately
-            this.onProgress(1);
-        } else {
-            this.onProgress(0);
-            // Start animating
-            this.startTime = performance.now();
-            this.frameId = requestAnimationFrame(() => this.onFrame());
-        }
-    }
-    onFrame() {
-        const timePassed = performance.now() - this.startTime;
-        const progress = Math.min(timePassed / this.duration, 1);
-        this.onProgress(progress);
-        if (progress < 1) {
-            // We still have more frames to paint
-            this.frameId = requestAnimationFrame(() => this.onFrame());
-        }
-    }
-    onProgress(progress) {
-        this.node.style.opacity = progress;
-    }
-    stop() {
-        cancelAnimationFrame(this.frameId);
-        this.startTime = null;
-        this.frameId = null;
-        this.duration = 0;
-    }
+    return <dialog ref={ref}>{children}</dialog>
 }
