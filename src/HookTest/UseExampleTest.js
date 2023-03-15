@@ -33,6 +33,7 @@ function TodoList({ todos, theme, tab }) {
     // The difference
     const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
     // const visibleTodos = filterTodos(todos, tab);
+    const list = useMemo(() => <List items={visibleTodos}/>)
     return (
         <div style={{ background: `${theme}`}}>
             <p>
@@ -41,14 +42,20 @@ function TodoList({ todos, theme, tab }) {
                 </b>
             </p>
             <ul>
-                {visibleTodos.map((todo) => (
-                    <li key={todo.id}>
-                        {todo.completed ? <s>{todo.text}</s> : todo.text}
-                    </li>
-                ))}
+                {list}
             </ul>
         </div>
     );
+}
+
+function List({ items }) {
+    return <ul>
+        {items.map((todo) => (
+            <li key={todo.id}>
+                {todo.completed ? <s>{todo.text}</s> : todo.text}
+            </li>
+        ))}
+    </ul>
 }
 
 function createTodos() {
