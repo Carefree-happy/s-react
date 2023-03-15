@@ -1,8 +1,4 @@
-import { forwardRef, useRef } from "react";
-
-const MyInput = forwardRef((props, ref) => {
-    return <input {...props} ref={ref} />;
-});
+import { forwardRef, useImperativeHandle, useRef } from "react";
 
 export function UseExampleTest() {
     const inputRef = useRef(null);
@@ -18,3 +14,19 @@ export function UseExampleTest() {
         </>
     );
 }
+
+const MyInput = forwardRef((props, ref) => {
+    const inputRef = useRef(null)
+
+    useImperativeHandle(ref, () => {
+        return {
+            focus() {
+                inputRef.current.focus();
+            },
+            scrollIntoView() {
+                inputRef.current.scrollIntoView();
+            }
+        }
+    })
+    return <input {...props} ref={ref} />;
+});
