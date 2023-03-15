@@ -1,30 +1,80 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function UseExampleTest() {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [show, setShow] = useState(false);
+    return (
+        <>
+            <button onClick={() => setShow(!show)}>
+                {show ? "Remove" : "Show"}
+            </button>
+            <hr />
+            {show && <Welcome />}
+        </>
+    );
+}
+
+function Welcome() {
+    const ref = useRef(null);
 
     useEffect(() => {
-        function handleMove(e) {
-            setPosition({ x: e.clientX, y: e.clientY });
-        }
-        window.addEventListener("mousemove", handleMove);
+        const animation = new FadeInAnimation(ref.current);
+        animation.start(5000);
         return () => {
-            window.removeEventListener("mousemove", handleMove);
+            animation.stop();
         };
     }, []);
+
     return (
-        <div
+        <h1
+            ref={ref}
             style={{
-                position: "absolute",
-                backgroundColor: "pink",
-                opacity: 0.6,
-                borderRadius: "50%",
-                transform: `translate(${position.x}px, ${position.y}px)`,
-                left: -20,
-                top: -20,
-                width: 40,
-                height: 40,
+                opacity: 0,
+                color: "white",
+                padding: 50,
+                textAlign: "center",
+                fontSize: 50,
+                backgroundImage:
+                    "radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)",
             }}
-        />
+        >
+            Welcome
+        </h1>
     );
+}
+
+
+class FadeInAnimation {
+    constructor(node) {
+        this.node = node;
+    }
+    start(duration) {
+        this.duration = duration;
+        if (this.duration === 0) {
+            // Jump to end immediately
+            this.onProgress(1);
+        } else {
+            this.onProgress(0);
+            // Start animating
+            this.startTime = performance.now();
+            this.frameId = requestAnimationFrame(() => this.onFrame());
+        }
+    }
+    onFrame() {
+        const timePassed = performance.now() - this.startTime;
+        const progress = Math.min(timePassed / this.duration, 1);
+        this.onProgress(progress);
+        if (progress < 1) {
+            // We still have more frames to paint
+            this.frameId = requestAnimationFrame(() => this.onFrame());
+        }
+    }
+    onProgress(progress) {
+        this.node.style.opacity = progress;
+    }
+    stop() {
+        cancelAnimationFrame(this.frameId);
+        this.startTime = null;
+        this.frameId = null;
+        this.duration = 0;
+    }
 }
