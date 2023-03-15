@@ -1,59 +1,73 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function UseExampleTest() {
+    const [roomId, setRoomId] = useState("general");
     const [show, setShow] = useState(false);
     return (
         <>
-            <LongSection />
-            <Box />
-            <LongSection />
-            <Box />
-            <LongSection />
+            <label>
+                Choose the chat room:{" "}
+                <select
+                    value={roomId}
+                    onChange={(e) => setRoomId(e.target.value)}
+                >
+                    <option value="general">general</option>
+                    <option value="travel">travel</option>
+                    <option value="music">music</option>
+                </select>
+            </label>
+            <button onClick={() => setShow(!show)}>
+                {show ? "Close chat" : "Open chat"}
+            </button>
+            {show && <hr />}
+            {show && <ChatRoom roomId={roomId} />}
         </>
     );
 }
 
-function LongSection() {
-    const items = [];
-    for (let i = 0; i < 50; i++) {
-        items.push(<li key={i}>Item #{i} (keep scrolling)</li>);
-    }
-    return <ul>{items}</ul>;
-}
+function ChatRoom({ roomId }) {
+    const [serverUrl, setServerUrl] = useState("https://localhost:1234");
 
-function Box() {
-    const ref = useRef(null);
-
-    useEffect(() => {
-        const div = ref.current;
-        const observer = new IntersectionObserver((entries) => {
-            const entry = entries[0];
-            if (entry.isIntersecting) {
-                document.body.style.backgroundColor = "black";
-                document.body.style.color = "white";
-            } else {
-                document.body.style.backgroundColor = "white";
-                document.body.style.color = "black";
-            }
-        });
-        observer.observe(div, {
-            threshold: 1.0,
-        });
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
+    useChatRoom({
+        roomId: roomId,
+        serverUrl: serverUrl,
+    });
 
     return (
-        <div
-            ref={ref}
-            style={{
-                margin: 20,
-                height: 100,
-                width: 100,
-                border: "2px solid black",
-                backgroundColor: "blue",
-            }}
-        />
+        <>
+            <label>
+                Server URL:{" "}
+                <input
+                    value={serverUrl}
+                    onChange={(e) => setServerUrl(e.target.value)}
+                />
+            </label>
+            <h1>Welcome to the {roomId} room!</h1>
+        </>
     );
+}
+
+function useChatRoom({ roomId, serverUrl }) {
+    useEffect(() => {
+        const connection = createConnection(serverUrl, roomId);
+        connection.connect();
+        return () => {
+            connection.disconnect();
+        };
+    }, [roomId, serverUrl]);
+}
+
+function createConnection(serverUrl, roomId) {
+    return {
+        connect() {
+            console.log(
+                '✅ Connecting to "' + roomId + '" room at ' + serverUrl + "..."
+            );
+        },
+        disconnect() {
+            console.log(
+                '❌ Disconnected from "' + roomId + '" room at ' + serverUrl
+            );
+        },
+    };
 }
