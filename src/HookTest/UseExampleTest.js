@@ -1,86 +1,88 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+
+const todos = createTodos();
 
 export function UseExampleTest() {
-    const postRef = useRef(null);
-
-    function handleClick() {
-        postRef.current.scrollAndFocusAddComment();
-    }
-
+    const [tab, setTab] = useState("all");
+    const [isDark, setIsDark] = useState(false);
     return (
         <>
-            <button onClick={handleClick}>Write a comment</button>
-            <Post ref={postRef} />
+            <button onClick={() => setTab("all")}>All</button>
+            <button onClick={() => setTab("active")}>Active</button>
+            <button onClick={() => setTab("completed")}>Completed</button>
+            <br />
+            <label>
+                <input
+                    type="checkbox"
+                    checked={isDark}
+                    onChange={(e) => setIsDark(e.target.checked)}
+                />
+                Dark mode
+            </label>
+            <hr />
+            <TodoList
+                todos={todos}
+                tab={tab}
+                theme={isDark ? "darkgrey" : "lightblue"}
+            />
         </>
     );
 }
 
-const Post = forwardRef((props, ref) => {
-    const commentsRef = useRef(null);
-    const addCommentRef = useRef(null);
-
-    useImperativeHandle(
-        ref,
-        () => {
-            return {
-                scrollAndFocusAddComment() {
-                    commentsRef.current.scrollToBottom();
-                    addCommentRef.current.focus();
-                },
-            };
-        },
-        []
-    );
-
+function TodoList({ todos, theme, tab }) {
+    // The difference
+    const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
+    // const visibleTodos = filterTodos(todos, tab);
     return (
-        <>
-            <article>
-                <p>Welcome to my blog!</p>
-            </article>
-            <CommentList ref={commentsRef} />
-            <AddComment ref={addCommentRef} />
-        </>
-    );
-});
-
-const CommentList = forwardRef(function CommentList(props, ref) {
-    const divRef = useRef(null);
-
-    useImperativeHandle(
-        ref,
-        () => {
-            return {
-                scrollToBottom() {
-                    const node = divRef.current;
-                    node.scrollTop = node.scrollHeight;
-                },
-            };
-        },
-        []
-    );
-
-    let comments = [];
-    for (let i = 0; i < 50; i++) {
-        comments.push(<p key={i}>Comment #{i}</p>);
-    }
-
-    return (
-        <div
-            className="CommentList"
-            ref={divRef}
-            style={{
-                height: 100,
-                overflow: "scroll",
-                border: "1px solid black",
-                marginTop: 20,
-                marginBottom: 20,
-            }}
-        >
-            {comments}
+        <div style={{ background: `${theme}`}}>
+            <p>
+                <b>
+                    Note: <code>filterTodos</code> is artificially slowed down!
+                </b>
+            </p>
+            <ul>
+                {visibleTodos.map((todo) => (
+                    <li key={todo.id}>
+                        {todo.completed ? <s>{todo.text}</s> : todo.text}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
-});
+}
 
-const AddComment = forwardRef(function AddComment(props, ref) {
-    return <input placeholder="Add comment..." ref={ref} />;
-});
+function createTodos() {
+    const todos = [];
+    for (let i = 0; i < 50; i++) {
+        todos.push({
+            id: i,
+            text: "Todo " + (i + 1),
+            completed: Math.random() > 0.5,
+        });
+    }
+    return todos;
+}
+
+function filterTodos(todos, tab) {
+    console.log(
+        "[ARTIFICIALLY SLOW] Filtering " +
+            todos.length +
+            ' todos for "' +
+            tab +
+            '" tab.'
+    );
+    let startTime = performance.now();
+    while (performance.now() - startTime < 500) {
+        // Do nothing for 500 ms to emulate extremely slow code
+    }
+
+    return todos.filter((todo) => {
+        if (tab === "all") {
+            return true;
+        } else if (tab === "active") {
+            return !todo.completed;
+        } else if (tab === "completed") {
+            return todo.completed;
+        }
+    });
+}
