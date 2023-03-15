@@ -1,34 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function UseExampleTest() {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-
-    useWindowListener("pointermove", (e) => {
-        setPosition({ x: e.clientX, y: e.clientY });
-    });
-
+    const [show, setShow] = useState(false);
     return (
-        <div
-            style={{
-                position: "absolute",
-                backgroundColor: "pink",
-                opacity: 0.6,
-                borderRadius: "50%",
-                transform: `translate(${position.x}px, ${position.y}px)`,
-                left: -20,
-                top: -20,
-                width: 40,
-                height: 40,
-            }}
-        />
+        <>
+            <LongSection />
+            <Box />
+            <LongSection />
+            <Box />
+            <LongSection />
+        </>
     );
 }
 
-function useWindowListener(eventType, listener) {
+function LongSection() {
+    const items = [];
+    for (let i = 0; i < 50; i++) {
+        items.push(<li key={i}>Item #{i} (keep scrolling)</li>);
+    }
+    return <ul>{items}</ul>;
+}
+
+function Box() {
+    const ref = useRef(null);
+
     useEffect(() => {
-        window.addEventListener(eventType, listener);
+        const div = ref.current;
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (entry.isIntersecting) {
+                document.body.style.backgroundColor = "black";
+                document.body.style.color = "white";
+            } else {
+                document.body.style.backgroundColor = "white";
+                document.body.style.color = "black";
+            }
+        });
+        observer.observe(div, {
+            threshold: 1.0,
+        });
         return () => {
-            window.removeEventListener(eventType, listener);
+            observer.disconnect();
         };
-    }, [eventType, listener]);
+    }, []);
+
+    return (
+        <div
+            ref={ref}
+            style={{
+                margin: 20,
+                height: 100,
+                width: 100,
+                border: "2px solid black",
+                backgroundColor: "blue",
+            }}
+        />
+    );
 }
