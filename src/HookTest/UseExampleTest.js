@@ -1,14 +1,34 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState, useRef } from 'react';
 
 export function UseExampleTest() {
-    let ref = useRef(0);
+    const [startTime, setStartTime] = useState(null);
+    const [now, setNow] = useState(null);
+    const intervalRef = useRef(null);
 
-    function handleClick() {
-        // 此处证明ref.current 中的值跟渲染无关
-        ref.current = ref.current + 1;
-        alert("You clicked " + ref.current + " times!");
+    function handleStart() {
+        setStartTime(Date.now());
+        setNow(Date.now());
+
+        clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setNow(Date.now());
+        }, 10);
     }
 
-    return <button onClick={handleClick}>Click me! {ref.current}</button>;
+    function handleStop() {
+        clearInterval(intervalRef.current);
+    }
+
+    let secondsPassed = 0;
+    if (startTime != null && now != null) {
+        secondsPassed = (now - startTime) / 100000;
+    }
+
+    return (
+        <>
+            <h1>Time passed: {secondsPassed.toFixed(3)}</h1>
+            <button onClick={handleStart}>Start</button>
+            <button onClick={handleStop}>Stop</button>
+        </>
+    );
 }
