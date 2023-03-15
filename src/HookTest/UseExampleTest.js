@@ -1,66 +1,30 @@
 import { useEffect, useState } from "react";
 
 export function UseExampleTest() {
-    const [roomId, setRoomId] = useState("general");
-    const [show, setShow] = useState(false);
-    return (
-        <>
-            <label>
-                Choose the chat room:{" "}
-                <select
-                    value={roomId}
-                    onChange={(e) => setRoomId(e.target.value)}
-                >
-                    <option value="general">general</option>
-                    <option value="travel">travel</option>
-                    <option value="music">music</option>
-                </select>
-            </label>
-            <button onClick={() => setShow(!show)}>
-                {show ? "Close chat" : "Open chat"}
-            </button>
-            {show && <hr />}
-            {show && <ChatRoom roomId={roomId} />}
-        </>
-    );
-}
-
-function ChatRoom({ roomId }) {
-    const [serverUrl, setServerUrl] = useState("https://localhost:1234");
+    const [position, setPosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
-        const connection = createConnection(serverUrl, roomId);
-        connection.connect();
+        function handleMove(e) {
+            setPosition({ x: e.clientX, y: e.clientY });
+        }
+        window.addEventListener("mousemove", handleMove);
         return () => {
-            connection.disconnect();
+            window.removeEventListener("mousemove", handleMove);
         };
-    }, [roomId, serverUrl]);
-
+    }, []);
     return (
-        <>
-            <label>
-                Server URL:{" "}
-                <input
-                    value={serverUrl}
-                    onChange={(e) => setServerUrl(e.target.value)}
-                />
-            </label>
-            <h1>Welcome to the {roomId} room!</h1>
-        </>
+        <div
+            style={{
+                position: "absolute",
+                backgroundColor: "pink",
+                opacity: 0.6,
+                borderRadius: "50%",
+                transform: `translate(${position.x}px, ${position.y}px)`,
+                left: -20,
+                top: -20,
+                width: 40,
+                height: 40,
+            }}
+        />
     );
-}
-
-function createConnection(serverUrl, roomId) {
-    return {
-        connect() {
-            console.log(
-                '✅ Connecting to "' + roomId + '" room at ' + serverUrl + "..."
-            );
-        },
-        disconnect() {
-            console.log(
-                '❌ Disconnected from "' + roomId + '" room at ' + serverUrl
-            );
-        },
-    };
 }
