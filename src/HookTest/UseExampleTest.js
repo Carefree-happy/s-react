@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 const todos = createTodos();
 
@@ -33,7 +33,22 @@ function TodoList({ todos, theme, tab }) {
     // The difference
     const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
     // const visibleTodos = filterTodos(todos, tab);
-    const list = useMemo(() => <List items={visibleTodos}/>)
+    // const list = useMemo(() => <List items={visibleTodos}/>, [visibleTodos])
+
+    // 存储变量
+    // const list = useMemo(() => {
+    //     return <List items={visibleTodos}/>
+    // }, [visibleTodos])
+
+    // 存储函数
+    // const list = useMemo(() => {
+    //     return () => <List items={visibleTodos}/>
+    // }, [visibleTodos])
+
+    // 完全等价，666
+    const list = useCallback(() => {
+        return <List items={visibleTodos}/>
+    }, [visibleTodos])
     return (
         <div style={{ background: `${theme}`}}>
             <p>
@@ -42,7 +57,7 @@ function TodoList({ todos, theme, tab }) {
                 </b>
             </p>
             <ul>
-                {list}
+                {list()}
             </ul>
         </div>
     );
