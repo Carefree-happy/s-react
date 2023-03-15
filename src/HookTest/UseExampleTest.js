@@ -1,36 +1,20 @@
-import { useState, useRef } from "react";
+import { forwardRef, useRef } from "react";
+
+const MyInput = forwardRef((props, ref) => {
+    return <input {...props} ref={ref} />;
+});
 
 export function UseExampleTest() {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const ref = useRef(null);
+    const inputRef = useRef(null);
 
     function handleClick() {
-        const nextIsPlaying = !isPlaying;
-        setIsPlaying(nextIsPlaying);
-
-        if (nextIsPlaying) {
-            ref.current.play();
-        } else {
-            ref.current.pause();
-        }
+        inputRef.current.focus();
     }
 
     return (
         <>
-            <button onClick={handleClick}>
-                {isPlaying ? "Pause" : "Play"}
-            </button>
-            <video
-                width="250"
-                ref={ref}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-            >
-                <source
-                    src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
-                    type="video/mp4"
-                />
-            </video>
+            <MyInput ref={inputRef} />
+            <button onClick={handleClick}>Focus the input</button>
         </>
     );
 }
