@@ -1,110 +1,30 @@
-import { useCallback, useMemo, useState } from "react";
+import { forwardRef, useRef } from "react";
 
 const todos = createTodos();
 
 export function UseExampleTest() {
-    const [tab, setTab] = useState("all");
-    const [isDark, setIsDark] = useState(false);
-    return (
-        <>
-            <button onClick={() => setTab("all")}>All</button>
-            <button onClick={() => setTab("active")}>Active</button>
-            <button onClick={() => setTab("completed")}>Completed</button>
-            <br />
-            <label>
-                <input
-                    type="checkbox"
-                    checked={isDark}
-                    onChange={(e) => setIsDark(e.target.checked)}
-                />
-                Dark mode
-            </label>
-            <hr />
-            <TodoList
-                todos={todos}
-                tab={tab}
-                theme={isDark ? "darkgrey" : "lightblue"}
-            />
-        </>
-    );
-}
+    const ref = useRef(null);
 
-function TodoList({ todos, theme, tab }) {
-    // The difference
-    const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
-    // const visibleTodos = filterTodos(todos, tab);
-    // const list = useMemo(() => <List items={visibleTodos}/>, [visibleTodos])
-
-    // 存储变量
-    // const list = useMemo(() => {
-    //     return <List items={visibleTodos}/>
-    // }, [visibleTodos])
-
-    // 存储函数
-    // const list = useMemo(() => {
-    //     return () => <List items={visibleTodos}/>
-    // }, [visibleTodos])
-
-    // 完全等价，666
-    const list = useCallback(() => {
-        return <List items={visibleTodos}/>
-    }, [visibleTodos])
-    return (
-        <div style={{ background: `${theme}`}}>
-            <p>
-                <b>
-                    Note: <code>filterTodos</code> is artificially slowed down!
-                </b>
-            </p>
-            <ul>
-                {list()}
-            </ul>
-        </div>
-    );
-}
-
-function List({ items }) {
-    return <ul>
-        {items.map((todo) => (
-            <li key={todo.id}>
-                {todo.completed ? <s>{todo.text}</s> : todo.text}
-            </li>
-        ))}
-    </ul>
-}
-
-function createTodos() {
-    const todos = [];
-    for (let i = 0; i < 50; i++) {
-        todos.push({
-            id: i,
-            text: "Todo " + (i + 1),
-            completed: Math.random() > 0.5,
-        });
-    }
-    return todos;
-}
-
-function filterTodos(todos, tab) {
-    console.log(
-        "[ARTIFICIALLY SLOW] Filtering " +
-            todos.length +
-            ' todos for "' +
-            tab +
-            '" tab.'
-    );
-    let startTime = performance.now();
-    while (performance.now() - startTime < 500) {
-        // Do nothing for 500 ms to emulate extremely slow code
+    function handleClick() {
+        ref.current.focus();
     }
 
-    return todos.filter((todo) => {
-        if (tab === "all") {
-            return true;
-        } else if (tab === "active") {
-            return !todo.completed;
-        } else if (tab === "completed") {
-            return todo.completed;
-        }
-    });
+    return (
+        <form>
+            <MyInput label="Enter your name:" ref={ref} />
+            <button type="button" onClick={handleClick}>
+                Edit
+            </button>
+        </form>
+    );
 }
+
+const MyInput = forwardRef(function MyInput(props, ref) {
+    const { label, ...otherProps } = props;
+    return (
+        <label>
+            {label}
+            <input {...otherProps} ref={ref} />
+        </label>
+    );
+});
