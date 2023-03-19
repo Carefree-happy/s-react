@@ -210,3 +210,16 @@ const id = useId()
 useSyncExternalStore lets a component subscribe to an external store.w
 
 自定义Hook显示的标签，唯一ID，订阅外部存储
+
+## APIs
+### createContext
+createContext lets you create a context that components can provide or read.
+
+### forwardRef
+forwardRef lets your component expose a DOM node to parent component with a ref.
+
+- Exposing a DOM node to the parent component
+- Forwarding a ref through multiple components
+- Exposing an imperative handle instead of a DOM node
+
+const SomeComponent = forwardRef(render)
