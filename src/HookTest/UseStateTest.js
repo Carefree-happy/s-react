@@ -3,8 +3,8 @@ import React, { useState, useRef } from 'react';
 export default function UseStateTest() {
     const [list, setList] = useState([]);
     const [text, setText] = useState("");
+    // 表单新增中的ref，useRef
     const inputRef = useRef(null);
-
     const handleAdd = () => {
         if (text) {
             setList([...list, text]);
@@ -29,7 +29,7 @@ export default function UseStateTest() {
     };
 
     return (
-        <div>
+        <div>     
             <input
                 type="text"
                 value={text}
