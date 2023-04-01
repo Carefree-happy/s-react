@@ -1,3 +1,5 @@
+import UseStateTest from "./HookTest/UseStateTest";
+
 export default function App() {
-    return <p>Hello World!</p>;
+    return <UseStateTest></UseStateTest>
 }
